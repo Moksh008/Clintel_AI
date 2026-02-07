@@ -10,14 +10,14 @@ import { EffectComposer, Bloom } from '@react-three/postprocessing'
 
 /* ---------------- CONFIG ---------------- */
 const GLOBE_RADIUS = 100
-const TARGET_POINTS = 16000  // Increased for denser, more premium look
-const MIN_POINTS_PER_COUNTRY = 20
-const SPRITE_SIZE = 400  // Adjusted for elegance
-const POINT_DENSITY = 2.0
-const DOT_COLOR = '#4DA8DA' // Pharma Blue Light
-const BORDER_COLOR = '#0052A5' // Pharma Blue Dark
+const TARGET_POINTS = 20000  // Higher density for beautiful dot coverage
+const MIN_POINTS_PER_COUNTRY = 25
+const SPRITE_SIZE = 450  // Larger for more visible dots
+const POINT_DENSITY = 2.5
+const DOT_COLOR = '#5CB8E8' // Brighter Pharma Blue
+const BORDER_COLOR = '#4DA8DA' // Softer border color
 const HOVER_BORDER_COLOR = '#FFFFFF' // White on hover
-const ROTATE_SPEED = 0.02 // Slower, more majestic rotation
+const ROTATE_SPEED = 0.015 // Slower, more majestic rotation
 
 /* ---------------- HELPERS ---------------- */
 function latLngToVector3(lat, lng, altitude = 0) {
@@ -139,18 +139,7 @@ const fragmentShader = `
     alpha *= smoothstep(0.5, 0.0, r) * 1.5;
     float glow = exp(-r * 3.0) * 0.8;
     
-    // Wave Effect
-    float angle = atan(vPosition.z, vPosition.x);
-    float wave = sin(angle * 4.0 + uTime * 0.3); 
-    wave = smoothstep(0.6, 1.0, wave); 
-    
-    float edgeFade = 1.0 - pow(abs(normalize(vPosition).y), 3.0);
-    wave *= edgeFade * 0.6;
-    
-    float waveIntensity = wave * 4.0;
-    vec3 waveColor = vec3(0.7, 0.9, 1.0); // Cyan-ish white wave
-    
-    vec3 finalColor = vColor + (vColor * glow * 1.2) + (waveColor * waveIntensity * 0.4);
+    vec3 finalColor = vColor + (vColor * glow * 1.2);
     
     gl_FragColor = vec4(finalColor, alpha);
   }
@@ -188,24 +177,26 @@ function HoverBorder({ data }) {
 
     return (
         <group>
+            {/* Subtle outer glow */}
             {lines.map((path, i) => (
                 <Line
-                    key={`glow-${i}`}
+                    key={`glow-outer-${i}`}
                     points={path}
-                    color="#ffffff"
-                    lineWidth={2.0}
+                    color="#4DA8DA"
+                    lineWidth={3.0}
                     transparent
-                    opacity={0.4}
+                    opacity={0.25}
                 />
             ))}
+            {/* Main border line */}
             {lines.map((path, i) => (
                 <Line
                     key={i}
                     points={path}
-                    color="#ffffff"
+                    color="#5CB8E8"
                     lineWidth={1.5}
                     transparent
-                    opacity={1.0}
+                    opacity={0.7}
                 />
             ))}
         </group>
@@ -254,22 +245,23 @@ function Earth({ countries, onHover, onCountryClick }) {
 
     return (
         <>
-            {/* OCCLUDER - invisible sphere to block dots behind */}
-            <mesh position={[0, 0, 0]}>
+            {/* OCCLUDER - disabled to allow transparency */}
+            <mesh position={[0, 0, 0]} visible={false}>
                 <sphereGeometry args={[GLOBE_RADIUS - 0.2, 64, 64]} />
-                <meshBasicMaterial color="#000000" transparent opacity={0} />
+                <meshBasicMaterial colorWrite={false} />
             </mesh>
 
-            {/* SURFACE - Transparent dark blue tint */}
+            {/* SURFACE - Blue globe */}
             <mesh position={[0, 0, 0]}>
                 <sphereGeometry args={[GLOBE_RADIUS, 64, 64]} />
                 <meshPhongMaterial
-                    color="#002244"
-                    emissive="#001133"
-                    specular="#111111"
-                    shininess={5}
+                    color="#0a1628"
+                    emissive="#0052A5"
+                    emissiveIntensity={0.15}
+                    specular="#4DA8DA"
+                    shininess={15}
                     transparent={true}
-                    opacity={0.9}
+                    opacity={0.85}
                 />
             </mesh>
 
@@ -405,7 +397,7 @@ function GlobeContent({ countries, hoveredCountry, setHoveredCountry, onCountryC
     return (
         <group ref={groupRef}>
             <Earth countries={countries} onHover={setHoveredCountry} onCountryClick={onCountryClick} />
-            <OceanGrid />
+            {/* OceanGrid disabled - was causing white layer */}
             {countries.length > 0 && (
                 <>
                     <GlobePoints countries={countries} />
@@ -414,17 +406,7 @@ function GlobeContent({ countries, hoveredCountry, setHoveredCountry, onCountryC
                 </>
             )}
 
-            {/* Atmosphere Glow */}
-            <mesh scale={[1.1, 1.1, 1.1]}>
-                <sphereGeometry args={[GLOBE_RADIUS, 64, 64]} />
-                <meshBasicMaterial
-                    color="#4DA8DA"
-                    transparent
-                    opacity={0.05}
-                    side={THREE.BackSide}
-                    blending={THREE.AdditiveBlending}
-                />
-            </mesh>
+            {/* Atmosphere Glow - disabled to remove bright layer */}
         </group>
     )
 }
@@ -461,10 +443,10 @@ export default function GlobeR3F({
             className={`w-full h-full relative bg-transparent ${hoveredCountry ? 'cursor-pointer' : 'cursor-default'}`}
             onMouseMove={handleMouseMove}
         >
-            {/* Tooltip */}
+            {/* Pill-shaped Tooltip */}
             {countryName && (
                 <div
-                    className="fixed bg-white/90 text-primary px-4 py-2 font-sans rounded text-sm font-medium pointer-events-none z-[1000] border border-primary/20 backdrop-blur whitespace-nowrap shadow-[0_4px_20px_rgba(8,32,82,0.1)]"
+                    className="fixed bg-white/95 text-primary px-5 py-2 font-sans rounded-full text-sm font-medium pointer-events-none z-[1000] border border-primary/20 backdrop-blur-xl whitespace-nowrap shadow-[0_4px_20px_rgba(8,32,82,0.15)]"
                     style={{
                         left: mousePos.x + 15,
                         top: mousePos.y + 15,
@@ -497,11 +479,11 @@ export default function GlobeR3F({
 
                 <EffectComposer>
                     <Bloom
-                        luminanceThreshold={0.5}
-                        luminanceSmoothing={0.9}
-                        height={300}
-                        kernelSize={3}
-                        intensity={1.2}
+                        luminanceThreshold={0.3}
+                        luminanceSmoothing={0.95}
+                        height={400}
+                        kernelSize={4}
+                        intensity={1.8}
                     />
                 </EffectComposer>
             </Canvas>

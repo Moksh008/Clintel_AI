@@ -48,9 +48,9 @@ const Hero = ({ onScrollStateChange }) => {
         setCountryClicked(true);
         setSelectedCountry(country);
 
-        // Optional: Auto-scroll to Phase 2? 
-        // For now, we just enable the Phase 2 path.
-        // window.scrollTo({ top: window.innerHeight, behavior: 'smooth' });
+        // Scroll to Page 2 position (scroll progress ~0.3)
+        const containerHeight = containerRef.current?.offsetHeight || window.innerHeight * 5;
+        window.scrollTo({ top: containerHeight * 0.3, behavior: 'smooth' });
     };
 
 
@@ -73,34 +73,31 @@ const Hero = ({ onScrollStateChange }) => {
     const globeOpacityDirect = useTransform(smoothProgress, [0.1, 0.3], [1, 0]);
 
     // PATH B: CLICKED (1 -> 2 -> 3)
-    // Globe moves Right (25%) -> Center (0%) -> Up (-60%)
-    const globeXClicked = useTransform(smoothProgress, [0.1, 0.3], ["25%", "0%"]);
-    const globeYClicked = useTransform(smoothProgress, [0.6, 0.8], ["0%", "-60%"]);
-    const globeScaleClicked = useTransform(smoothProgress, [0.1, 0.3, 0.6], [1, 1.2, 1.2]);
+    // Globe moves Right (25%) -> Center (0%) -> stays centered in Screen 2 -> Up (-60%) in Screen 3
+    const globeXClicked = useTransform(smoothProgress, [0.1, 0.3, 0.6], ["25%", "0%", "0%"]); // Stay at center 0% during Screen 2
+    const globeYClicked = useTransform(smoothProgress, [0.3, 0.6, 0.8], ["0%", "0%", "-60%"]); // Stay at 0% during Screen 2, then move up
+    const globeScaleClicked = useTransform(smoothProgress, [0.1, 0.3, 0.6], [1, 1.0, 1.0]); // Keep scale at 1.0 (no zoom)
     const globeOpacityClicked = useTransform(smoothProgress, [0.6, 0.8], [1, 0]);
 
     // Active Transforms
     const globeX = countryClicked ? globeXClicked : globeXDirect;
     const globeY = countryClicked ? globeYClicked : globeYDirect;
-    // IMPORTANT: We need to merge the `animate` value (initial entry) with the scroll value.
-    // Framer Motion handles this if we use `style` for scroll and `animate` for entry, 
-    // but they might conflict. 
-    // Better approach: The `x` value in `style` overrides `animate` once movement starts.
-    // However, `animate` sets the "base" value.
-
     const globeScale = countryClicked ? globeScaleClicked : globeScaleDirect;
     const globeOpacity = countryClicked ? globeOpacityClicked : globeOpacityDirect;
 
 
-    // --- PAGE 2: SEARCH BAR (Only if clicked) ---
+    // --- PAGE 2: SEARCH BAR & COUNTRY DETAILS (Only if clicked) ---
     const searchOpacity = useTransform(smoothProgress, [0.25, 0.35, 0.55, 0.65],
         countryClicked ? [0, 1, 1, 0] : [0, 0, 0, 0]
     );
     const searchY = useTransform(smoothProgress, [0.25, 0.35], ["50px", "0px"]);
 
+    // Country Details Panel - only visible in Page 2 (scroll 0.3-0.6)
+    const countryDetailsOpacity = useTransform(smoothProgress, [0.25, 0.35, 0.55, 0.65],
+        countryClicked ? [0, 1, 1, 0] : [0, 0, 0, 0]
+    );
+
     // --- PAGE 3: FINAL TEXT (Always appears at end) ---
-    // If Direct: Appears earlier (since we skip P2)
-    // If Clicked: Appears later (after P2)
     const p3Start = countryClicked ? 0.7 : 0.3; // Starts much earlier if direct
 
     const bgWhiteOpacity = useTransform(smoothProgress,
@@ -134,6 +131,14 @@ const Hero = ({ onScrollStateChange }) => {
         return () => unsubscribe();
     }, [smoothProgress, onScrollStateChange]);
 
+    // Prevent page scroll when interacting with the details panel
+    // (we stop wheel / touch events from propagating to the page)
+    const stopScrollPropagation = (e) => {
+        // prevent default scrolling behavior and stop propagation up to window
+        if (e && typeof e.preventDefault === 'function') e.preventDefault();
+        if (e && typeof e.stopPropagation === 'function') e.stopPropagation();
+    };
+
     return (
         <section ref={containerRef} className="h-[500vh] relative w-full bg-background">
             <div className="sticky top-0 h-screen w-full overflow-hidden flex items-center justify-center">
@@ -142,15 +147,11 @@ const Hero = ({ onScrollStateChange }) => {
                 <div className="absolute inset-0 z-[-1] bg-background" />
 
                 {/* Globe */}
-                {/* Initial: x=50% (off), animate to 25% (right). Scroll takes over x. */}
                 <motion.div
                     className="absolute top-0 left-0 w-full h-full z-[1] will-change-transform opacity-30 mix-blend-multiply pointer-events-none"
                     initial={{ x: "60%", opacity: 0 }} // Start further right
                     animate={globeControls}
                     style={{
-                        // We apply scroll transforms. 
-                        // Note: If countryClicked is false, globeXDirect is constant "25%".
-                        // This matches the `animate` end state, so it should be seamless.
                         x: globeX,
                         y: globeY,
                         scale: globeScale,
@@ -160,9 +161,9 @@ const Hero = ({ onScrollStateChange }) => {
                     <GlobeScene onCountryClick={handleCountryClick} />
                 </motion.div>
 
-                {/* PAGE 1: Text (Left) */}
+                {/* PAGE 1: Text (Left Side, Upper Third) */}
                 <motion.div
-                    className="absolute left-[8%] max-lg:left-[6%] max-md:left-[5%] top-1/2 -translate-y-1/2 max-w-[500px] max-lg:max-w-[450px] max-md:max-w-[65%] z-10 text-left will-change-transform"
+                    className="absolute left-12 md:left-24 top-[30%] -translate-y-1/2 max-w-[600px] max-lg:max-w-[500px] max-md:max-w-[85%] max-md:left-8 z-10 text-left will-change-transform"
                     style={{ opacity: heroTextOpacity, y: heroTextY }}
                 >
                     <h1 className="font-sans font-bold text-[clamp(2rem,8vw,4.5rem)] leading-[1.1] text-primary tracking-tighter">
@@ -193,7 +194,7 @@ const Hero = ({ onScrollStateChange }) => {
                     <motion.div
                         initial={{ opacity: 0, y: 20 }}
                         animate={textControls}
-                        custom={4.5} // Delay after words
+                        custom={4.5}
                     >
                         <p className="mt-6 text-[clamp(1rem,1.5vw,1.25rem)] text-text-light font-light leading-relaxed">
                             AI-powered intelligence for the pharmaceutical industry
@@ -204,31 +205,118 @@ const Hero = ({ onScrollStateChange }) => {
                     </motion.div>
                 </motion.div>
 
-                {/* PAGE 2: Search Bar */}
+                {/* PAGE 2: Search Bar (Bottom Center) */}
                 <motion.div
-                    className="absolute bottom-[15%] max-md:bottom-[10%] left-1/2 -translate-x-1/2 z-20 w-[90%] max-w-[650px] max-lg:max-w-[550px] max-md:w-[92%] will-change-transform"
-                    style={{ opacity: searchOpacity, y: searchY }}
+                    className="absolute bottom-8 left-1/2 -translate-x-1/2 z-20 w-[90%] max-w-[650px] max-lg:max-w-[550px] max-md:w-[92%] max-md:bottom-24 will-change-transform"
+                    style={{ opacity: searchOpacity }}
                 >
-                    <div className="bg-white/80 backdrop-blur-[40px] border border-primary/10 rounded-[60px] px-6 py-3.5 max-md:px-4 max-md:py-3 flex items-center gap-4 max-md:gap-3 shadow-[0_4px_24px_rgba(0,0,0,0.05),0_1px_2px_rgba(255,255,255,0.8)_inset] transition-all duration-400 ease-[cubic-bezier(0.25,0.46,0.45,0.94)] hover:bg-white/90 hover:border-primary/20">
-                        {selectedCountry && (
-                            <span className="bg-primary text-white px-3.5 py-1.5 rounded-2xl text-xs font-semibold whitespace-nowrap shrink-0">
-                                {selectedCountry?.properties?.ADMIN || selectedCountry?.properties?.name}
-                            </span>
-                        )}
-                        <svg className="w-5 h-5 text-primary/60 shrink-0" viewBox="0 0 24 24" fill="none" stroke="currentColor">
+                    {/* Centered pill — removed the Explore button per request */}
+                    <div className="bg-white/20 backdrop-blur-[60px] border border-white/30 rounded-[60px] px-6 py-4 max-md:px-4 max-md:py-3 flex items-center gap-4 max-md:gap-3 shadow-[0_8px_32px_rgba(0,0,0,0.1),0_1px_1px_rgba(255,255,255,0.4)_inset,0_-1px_1px_rgba(0,0,0,0.05)_inset] transition-all duration-400 ease-[cubic-bezier(0.25,0.46,0.45,0.94)] hover:bg-white/30 hover:border-white/40">
+
+                        <svg className="w-5 h-5 text-primary/70 shrink-0" viewBox="0 0 24 24" fill="none" stroke="currentColor">
                             <circle cx="11" cy="11" r="8" strokeWidth="2" />
                             <path d="m21 21-4.35-4.35" strokeWidth="2" />
                         </svg>
                         <input
                             type="text"
-                            className="flex-1 bg-transparent border-none outline-none text-primary font-sans text-base max-md:text-sm font-normal py-2 placeholder:text-primary/40"
+                            className="flex-1 bg-transparent border-none outline-none text-primary font-sans text-base max-md:text-sm font-normal py-2 placeholder:text-primary/50"
                             placeholder="Search therapeutic areas, drugs, or insights..."
                         />
-                        <button className="bg-primary border-none rounded-full px-7 py-3 max-md:px-5 max-md:py-2.5 text-white font-sans text-sm max-md:text-xs font-semibold cursor-pointer transition-all duration-300 shrink-0 hover:-translate-y-0.5 hover:shadow-lg">
-                            Explore
-                        </button>
+                        {/* Explore button removed */}
                     </div>
                 </motion.div>
+
+                {/* Country Details Panel (Bottom Right) - Enhanced with News & Data */}
+                {selectedCountry && (
+                    <motion.div
+                        // prevent wheel/touch events inside this panel from scrolling the page
+                        onWheel={(e) => stopScrollPropagation(e)}
+                        onTouchStart={(e) => stopScrollPropagation(e)}
+                        onTouchMove={(e) => stopScrollPropagation(e)}
+                        style={{ touchAction: 'none', opacity: countryDetailsOpacity }}
+                        className="absolute bottom-8 right-8 max-md:bottom-4 max-md:right-4 z-30 w-[320px] max-md:w-[280px] bg-white/95 backdrop-blur-xl rounded-2xl border border-primary/10 shadow-[0_8px_32px_rgba(8,32,82,0.15)] overflow-hidden"
+                        initial={{ opacity: 0, y: 20, scale: 0.95 }}
+                        animate={{ opacity: 1, y: 0, scale: 1 }}
+                        transition={{ duration: 0.3, ease: "easeOut" }}
+                    >
+                        <div className="p-5 max-md:p-4">
+                            {/* Header */}
+                            <div className="flex items-center justify-between mb-4">
+                                <h3 className="text-xl font-semibold text-primary">
+                                    {selectedCountry?.properties?.ADMIN || selectedCountry?.properties?.name}
+                                </h3>
+                                <button
+                                    onClick={() => setSelectedCountry(null)}
+                                    className="w-7 h-7 flex items-center justify-center rounded-full bg-primary/10 text-primary/60 hover:bg-primary/20 transition-colors text-lg"
+                                >
+                                    ×
+                                </button>
+                            </div>
+
+                            {/* Key Metrics */}
+                            <div className="bg-primary/5 rounded-xl p-4 mb-4">
+                                <h4 className="text-xs font-semibold text-primary/60 uppercase tracking-wider mb-3">Market Overview</h4>
+                                <div className="space-y-2.5 text-sm">
+                                    <div className="flex justify-between items-center">
+                                        <span className="text-primary/70">Market Size</span>
+                                        <span className="font-semibold text-primary">$24.8B</span>
+                                    </div>
+                                    <div className="flex justify-between items-center">
+                                        <span className="text-primary/70">Growth Rate</span>
+                                        <span className="font-semibold text-green-600">+8.3% YoY</span>
+                                    </div>
+                                    <div className="flex justify-between items-center">
+                                        <span className="text-primary/70">Active Trials</span>
+                                        <span className="font-semibold text-primary">1,247</span>
+                                    </div>
+                                    <div className="flex justify-between items-center">
+                                        <span className="text-primary/70">Key Area</span>
+                                        <span className="font-medium text-primary">Oncology</span>
+                                    </div>
+                                </div>
+                            </div>
+
+                            {/* Latest News */}
+                            <div className="mb-4">
+                                <h4 className="text-xs font-semibold text-primary/60 uppercase tracking-wider mb-3">Latest Insights</h4>
+                                <div className="space-y-3">
+                                    <div className="bg-white/50 rounded-lg p-3 border border-primary/5 hover:border-primary/20 transition-colors">
+                                        <div className="flex items-start gap-2">
+                                            <div className="w-1.5 h-1.5 rounded-full bg-blue-500 mt-1.5 shrink-0"></div>
+                                            <div>
+                                                <p className="text-xs text-primary/90 leading-relaxed">New immunotherapy trial shows 42% improvement in patient outcomes</p>
+                                                <span className="text-[10px] text-primary/50 mt-1 block">2 hours ago</span>
+                                            </div>
+                                        </div>
+                                    </div>
+                                    <div className="bg-white/50 rounded-lg p-3 border border-primary/5 hover:border-primary/20 transition-colors">
+                                        <div className="flex items-start gap-2">
+                                            <div className="w-1.5 h-1.5 rounded-full bg-green-500 mt-1.5 shrink-0"></div>
+                                            <div>
+                                                <p className="text-xs text-primary/90 leading-relaxed">Regulatory approval granted for breakthrough diabetes treatment</p>
+                                                <span className="text-[10px] text-primary/50 mt-1 block">5 hours ago</span>
+                                            </div>
+                                        </div>
+                                    </div>
+                                    <div className="bg-white/50 rounded-lg p-3 border border-primary/5 hover:border-primary/20 transition-colors">
+                                        <div className="flex items-start gap-2">
+                                            <div className="w-1.5 h-1.5 rounded-full bg-purple-500 mt-1.5 shrink-0"></div>
+                                            <div>
+                                                <p className="text-xs text-primary/90 leading-relaxed">Market expansion in rare disease therapeutics sector</p>
+                                                <span className="text-[10px] text-primary/50 mt-1 block">1 day ago</span>
+                                            </div>
+                                        </div>
+                                    </div>
+                                </div>
+                            </div>
+
+                            {/* Action Button */}
+                            <button className="w-full bg-primary text-white py-2.5 rounded-xl text-sm font-medium hover:bg-primary/90 transition-colors shadow-sm">
+                                View Full Report →
+                            </button>
+                        </div>
+                    </motion.div>
+                )}
 
                 {/* PAGE 3: Final Text */}
                 <div className="absolute left-1/2 top-1/2 -translate-x-1/2 -translate-y-1/2 text-center z-15 w-full max-w-[1000px] px-8">
@@ -255,6 +343,7 @@ const Hero = ({ onScrollStateChange }) => {
                         Discover the future of pharmaceutical intelligence
                     </motion.p>
                 </div>
+
             </div>
         </section>
     );

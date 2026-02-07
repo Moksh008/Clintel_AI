@@ -60,8 +60,9 @@ const WheelCard = ({ index, totalSteps, wheelRotation }) => {
         return CENTER_Y + RADIUS * Math.sin(rad);
     });
 
-    // Opacity: 6 o'clock (90) fades in, 9 o'clock (180) full, 12 o'clock (270) fades out
-    const opacity = useTransform(currentAngle, [70, 100, 260, 290], [0, 1, 1, 0]);
+    // Opacity: Only visible around 9 o'clock (180°), hidden at 6 o'clock (90°) and 12 o'clock (270°)
+    // Tighter fade range so only one card shows at settled positions
+    const opacity = useTransform(currentAngle, [140, 165, 195, 220], [0, 1, 1, 0]);
 
     const gradients = [
         "radial-gradient(circle at 30% 30%, rgba(77, 168, 218, 0.1), transparent)",
