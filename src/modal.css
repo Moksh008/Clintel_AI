@@ -1,0 +1,63 @@
+/* Prevent scrolling on body when modal is open */
+body.modal-open {
+  overflow: hidden;
+}
+
+/* Modal overlay - covers entire viewport */
+.modal-overlay {
+  position: fixed;
+  top: 0;
+  left: 0;
+  right: 0;
+  bottom: 0;
+  min-height: 100vh;
+  width: 100%;
+  z-index: 9999;
+  background: rgba(0, 0, 0, 0.75);
+  backdrop-filter: blur(4px);
+  -webkit-backdrop-filter: blur(4px);
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  padding: 1rem;
+  /* Add animation for the overlay fade-in */
+  animation: modalFadeIn 0.3s ease-out;
+}
+
+/* Modal content container */
+.modal-center {
+  max-width: 32rem;
+  width: calc(100% - 2rem);
+  background: rgba(255, 255, 255, 0.98);
+  border-radius: 1rem;
+  box-shadow: 0 25px 50px -12px rgba(0, 0, 0, 0.25);
+  border: 1px solid rgba(255, 255, 255, 0.5);
+  overflow-y: auto;
+  max-height: 85vh;
+  margin: auto;
+  position: relative;
+  transform: translateY(0);
+  animation: modalAppear 0.3s ease-out;
+}
+
+/* Animation for modal appearance */
+@keyframes modalAppear {
+  from {
+    opacity: 0;
+    transform: translateY(20px);
+  }
+  to {
+    opacity: 1;
+    transform: translateY(0);
+  }
+}
+
+/* Animation for overlay fade-in */
+@keyframes modalFadeIn {
+  from {
+    opacity: 0;
+  }
+  to {
+    opacity: 1;
+  }
+}

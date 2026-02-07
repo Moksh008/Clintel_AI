@@ -1,0 +1,791 @@
+/* Mesh Ball Animation */
+@keyframes rotate {
+  from {
+    transform: rotate(0deg);
+  }
+
+  to {
+    transform: rotate(360deg);
+  }
+}
+
+/* App Container with Simplified Background */
+.app-container {
+  min-height: 100vh;
+  background: linear-gradient(135deg, #f0f8f4, #e6f3ec);
+  position: relative;
+  overflow: hidden;
+  font-family: 'Inter', -apple-system, BlinkMacSystemFont, 'Segoe UI', sans-serif;
+  padding: 2rem;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+}
+
+.decorative-circles {
+  position: fixed;
+  top: 0;
+  left: 0;
+  width: 100%;
+  height: 100%;
+  pointer-events: none;
+  z-index: 1;
+}
+
+.circle-top {
+  position: absolute;
+  width: 300px;
+  height: 300px;
+  background: linear-gradient(135deg, #2E8B57, #3CB371);
+  border-radius: 50%;
+  filter: blur(30px);
+  opacity: 0.6;
+  top: -100px;
+  right: -100px;
+  pointer-events: none;
+}
+
+.circle-bottom {
+  position: absolute;
+  width: 400px;
+  height: 400px;
+  background: linear-gradient(225deg, #4aba84, #7fdbaa);
+  border-radius: 50%;
+  filter: blur(40px);
+  opacity: 0.6;
+  bottom: -150px;
+  left: -150px;
+  pointer-events: none;
+}
+
+/* Content Wrapper for Centering */
+.content-wrapper {
+  width: 100%;
+  max-width: 1400px;
+  display: flex;
+  justify-content: center;
+  position: relative;
+  z-index: 2;
+}
+
+/* Enhanced Glass Effect Container - Shows Minimal Background */
+.translucent-container {
+  background: rgba(255, 255, 255, 0.15);
+  backdrop-filter: blur(40px) saturate(180%);
+  -webkit-backdrop-filter: blur(40px) saturate(180%);
+  border: 1px solid rgba(255, 255, 255, 0.4);
+  border-radius: 32px;
+  box-shadow:
+    0 8px 32px rgba(0, 0, 0, 0.08),
+    0 4px 16px rgba(0, 0, 0, 0.04),
+    inset 0 1px 0 0 rgba(255, 255, 255, 0.5),
+    inset 0 -1px 0 0 rgba(255, 255, 255, 0.2);
+  width: 100%;
+  min-height: calc(100vh - 4rem);
+  position: relative;
+  overflow: hidden;
+  box-shadow:
+    0 8px 32px rgba(0, 0, 0, 0.08),
+    0 0 0 1px rgba(255, 255, 255, 0.2) inset;
+}
+
+/* Optional: Even stronger glass effect variant */
+.translucent-container.ultra-glass {
+  background: rgba(255, 255, 255, 0.08);
+  backdrop-filter: blur(60px) saturate(200%);
+  -webkit-backdrop-filter: blur(60px) saturate(200%);
+  border: 1px solid rgba(255, 255, 255, 0.3);
+}
+
+/* Frosted glass overlay for extra depth */
+.translucent-container::before {
+  content: '';
+  position: absolute;
+  top: 0;
+  left: 0;
+  right: 0;
+  height: 1px;
+  background: linear-gradient(90deg,
+      transparent,
+      rgba(255, 255, 255, 0.8) 20%,
+      rgba(255, 255, 255, 0.8) 80%,
+      transparent);
+  opacity: 0.5;
+}
+
+/* Main Content - FIXED FOR NO SCROLLING */
+.main-content {
+  flex: 1;
+  height: calc(100vh - 4rem);
+  max-height: calc(100vh - 4rem);
+  overflow: hidden;
+  position: relative;
+  z-index: 1;
+}
+
+/* Dashboard content wrapper - allows internal scrolling */
+.main-content>div {
+  height: 100%;
+  overflow-y: auto;
+  padding: 1.25rem;
+}
+
+/* Fade in animation */
+.fade-in {
+  animation: fadeIn 0.3s ease-in-out;
+}
+
+@keyframes fadeIn {
+  from {
+    opacity: 0;
+    transform: translateY(10px);
+  }
+
+  to {
+    opacity: 1;
+    transform: translateY(0);
+  }
+}
+
+/* Custom scrollbar with glass effect */
+::-webkit-scrollbar {
+  width: 8px;
+}
+
+::-webkit-scrollbar-track {
+  background: rgba(255, 255, 255, 0.1);
+  border-radius: 4px;
+  backdrop-filter: blur(10px);
+}
+
+::-webkit-scrollbar-thumb {
+  background: rgba(255, 255, 255, 0.3);
+  border-radius: 4px;
+  border: 1px solid rgba(255, 255, 255, 0.1);
+}
+
+::-webkit-scrollbar-thumb:hover {
+  background: rgba(255, 255, 255, 0.4);
+}
+
+/* Focus states */
+button:focus,
+input:focus,
+select:focus,
+textarea:focus {
+  outline: none;
+  box-shadow: 0 0 0 3px rgba(127, 219, 170, 0.25);
+}
+
+/* Enhanced Card hover effects with glass */
+.card-hover {
+  transition: all 0.3s cubic-bezier(0.4, 0, 0.2, 1);
+  background: rgba(255, 255, 255, 0.25);
+  backdrop-filter: blur(20px);
+  -webkit-backdrop-filter: blur(20px);
+  border: 1px solid rgba(255, 255, 255, 0.3);
+  box-shadow: 0 4px 16px rgba(0, 0, 0, 0.05);
+}
+
+.card-hover:hover {
+  transform: translateY(-2px);
+  box-shadow:
+    0 20px 40px rgba(0, 0, 0, 0.1),
+    0 1px 3px rgba(127, 219, 170, 0.1);
+  background: rgba(255, 255, 255, 0.35);
+  border-color: rgba(255, 255, 255, 0.5);
+}
+
+/* Button animations */
+.btn-animate {
+  transition: all 0.2s ease-in-out;
+}
+
+.btn-animate:hover {
+  transform: translateY(-1px);
+}
+
+.btn-animate:active {
+  transform: translateY(0);
+}
+
+/* Stronger Glass effect for nested cards */
+.glass-effect {
+  backdrop-filter: blur(30px) saturate(150%);
+  -webkit-backdrop-filter: blur(30px) saturate(150%);
+  background: rgba(255, 255, 255, 0.2);
+  border: 1px solid rgba(255, 255, 255, 0.4);
+  box-shadow:
+    0 4px 16px rgba(0, 0, 0, 0.06),
+    inset 0 1px 0 rgba(255, 255, 255, 0.5);
+}
+
+/* Custom border radius */
+.rounded-2xl {
+  border-radius: 1rem;
+}
+
+.rounded-3xl {
+  border-radius: 1.5rem;
+}
+
+/* Text selection */
+::selection {
+  background-color: rgba(253, 121, 168, 0.3);
+  color: inherit;
+}
+
+/* Loading states */
+.loading {
+  position: relative;
+  overflow: hidden;
+}
+
+.loading::after {
+  position: absolute;
+  top: 0;
+  right: 0;
+  bottom: 0;
+  left: 0;
+  transform: translateX(-100%);
+  background: linear-gradient(90deg,
+      rgba(255, 255, 255, 0) 0%,
+      rgba(255, 255, 255, 0.3) 20%,
+      rgba(255, 255, 255, 0.6) 60%,
+      rgba(255, 255, 255, 0) 100%);
+  animation: loading 2s infinite;
+  content: '';
+}
+
+@keyframes loading {
+  0% {
+    transform: translateX(-100%);
+  }
+
+  100% {
+    transform: translateX(100%);
+  }
+}
+
+/* Status indicator animations */
+.status-pending {
+  position: relative;
+}
+
+.status-pending::before {
+  content: '';
+  position: absolute;
+  left: -8px;
+  top: 50%;
+  transform: translateY(-50%);
+  width: 4px;
+  height: 4px;
+  background: #fab1a0;
+  border-radius: 50%;
+  animation: pulse 2s infinite;
+}
+
+.status-in-progress {
+  position: relative;
+}
+
+.status-in-progress::before {
+  content: '';
+  position: absolute;
+  left: -8px;
+  top: 50%;
+  transform: translateY(-50%);
+  width: 4px;
+  height: 4px;
+  background: #fd79a8;
+  border-radius: 50%;
+  animation: pulse 2s infinite;
+}
+
+@keyframes pulse {
+
+  0%,
+  100% {
+    opacity: 1;
+    transform: translateY(-50%) scale(1);
+  }
+
+  50% {
+    opacity: 0.5;
+    transform: translateY(-50%) scale(1.2);
+  }
+}
+
+/* Responsive utilities */
+@media (max-width: 768px) {
+  .app-container {
+    padding: 1rem;
+  }
+
+  .main-content {
+    height: calc(100vh - 2rem);
+    max-height: calc(100vh - 2rem);
+  }
+
+  .main-content>div {
+    padding: 1rem;
+  }
+
+  .card-hover:hover {
+    transform: none;
+  }
+
+  .btn-animate:hover {
+    transform: none;
+  }
+
+  .translucent-container {
+    min-height: calc(100vh - 2rem);
+    border-radius: 24px;
+  }
+}
+
+/* Enhanced complaint card with glass */
+.complaint-card {
+  transition: all 0.2s ease-in-out;
+  border-left: 4px solid transparent;
+  background: rgba(255, 255, 255, 0.2);
+  backdrop-filter: blur(15px);
+  -webkit-backdrop-filter: blur(15px);
+  border: 1px solid rgba(255, 255, 255, 0.3);
+  border-left-width: 4px;
+}
+
+.complaint-card:hover {
+  border-left-color: #fd79a8;
+  transform: translateX(2px);
+  background: rgba(255, 255, 255, 0.3);
+}
+
+.complaint-card.pending {
+  border-left-color: #fab1a0;
+}
+
+.complaint-card.in-progress {
+  border-left-color: #fd79a8;
+}
+
+.complaint-card.resolved {
+  border-left-color: #a8e6cf;
+}
+
+/* Priority indicators */
+.priority-high {
+  box-shadow: 0 0 0 1px rgba(255, 182, 193, 0.4);
+}
+
+.priority-medium {
+  box-shadow: 0 0 0 1px rgba(250, 177, 160, 0.4);
+}
+
+.priority-low {
+  box-shadow: 0 0 0 1px rgba(168, 230, 207, 0.4);
+}
+
+/* Interactive elements */
+.interactive {
+  cursor: pointer;
+  transition: all 0.15s ease-in-out;
+}
+
+.interactive:hover {
+  background-color: rgba(253, 121, 168, 0.1);
+}
+
+.interactive:active {
+  background-color: rgba(253, 121, 168, 0.2);
+  transform: scale(0.99);
+}
+
+/* Typography improvements */
+h1,
+h2,
+h3,
+h4,
+h5,
+h6 {
+  letter-spacing: -0.025em;
+}
+
+.text-balance {
+  text-wrap: balance;
+}
+
+/* Accessibility improvements */
+@media (prefers-reduced-motion: reduce) {
+
+  *,
+  *::before,
+  *::after {
+    animation-duration: 0.01ms !important;
+    animation-iteration-count: 1 !important;
+    transition-duration: 0.01ms !important;
+    scroll-behavior: auto !important;
+  }
+}
+
+/* Focus visible for better accessibility */
+.focus-visible:focus {
+  outline: 2px solid #fd79a8;
+  outline-offset: 2px;
+}
+
+/* Additional glass effect utility classes */
+.glass-light {
+  background: rgba(255, 255, 255, 0.25);
+  backdrop-filter: blur(20px);
+  -webkit-backdrop-filter: blur(20px);
+  border: 1px solid rgba(255, 255, 255, 0.35);
+}
+
+.glass-medium {
+  background: rgba(255, 255, 255, 0.15);
+  backdrop-filter: blur(30px);
+  -webkit-backdrop-filter: blur(30px);
+  border: 1px solid rgba(255, 255, 255, 0.3);
+}
+
+.glass-heavy {
+  background: rgba(255, 255, 255, 0.08);
+  backdrop-filter: blur(50px) saturate(180%);
+  -webkit-backdrop-filter: blur(50px) saturate(180%);
+  border: 1px solid rgba(255, 255, 255, 0.25);
+}
+
+/* Shimmer effect for premium feel */
+@keyframes shimmer {
+  0% {
+    background-position: -1000px 0;
+  }
+
+  100% {
+    background-position: 1000px 0;
+  }
+}
+
+.shimmer {
+  background: linear-gradient(90deg,
+      rgba(255, 255, 255, 0) 0%,
+      rgba(255, 255, 255, 0.3) 50%,
+      rgba(255, 255, 255, 0) 100%);
+  background-size: 1000px 100%;
+  animation: shimmer 3s infinite;
+}
+
+/* ----------------- Drawer, Mobile nav & spacing ----------------- */
+
+/* Drawer open/close handled via transform in Sidebar.jsx */
+aside[aria-hidden="false"] {
+  will-change: transform;
+}
+
+/* Ensure mobile fixed hamburger button has adequate z-index */
+button[aria-label="Open menu"] {
+  -webkit-tap-highlight-color: transparent;
+}
+
+/* Prevent the fixed bottom nav from overlapping content on mobile */
+@media (max-width: 768px) {
+  .main-content>div {
+    padding-bottom: 6rem;
+    /* Add extra padding at bottom for floating nav */
+  }
+
+  .translucent-container {
+    padding: 0.5rem;
+  }
+
+  .card-hover {
+    padding: 0.875rem;
+  }
+}
+
+/* Make mobile nav tap targets larger */
+@media (max-width: 640px) {
+  nav[aria-label="Primary"] a {
+    min-width: 44px;
+    min-height: 44px;
+    display: inline-flex;
+    align-items: center;
+    justify-content: center;
+  }
+}
+
+/* Ensure the fixed mobile nav sits above any translucent container shadows */
+nav[aria-label="Primary"] {
+  backdrop-filter: blur(6px);
+  -webkit-backdrop-filter: blur(6px);
+}
+
+/* Hide decorative circles on smaller screens to reduce clutter */
+@media (max-width: 1024px) {
+  .decorative-circles {
+    display: none;
+  }
+}
+
+/* Drawer-specific tweaks */
+@media (max-width: 1024px) {
+  aside[aria-hidden="false"] {
+    background: rgba(255, 255, 255, 0.87);
+    backdrop-filter: blur(8px);
+  }
+
+  aside[aria-hidden="true"] {
+    background: rgba(255, 255, 255, 0.0);
+  }
+}
+
+/* Fallback for multi-line clamp without tailwind plugin */
+.line-clamp-2 {
+  display: -webkit-box;
+  -webkit-line-clamp: 2;
+  -webkit-box-orient: vertical;
+  overflow: hidden;
+}
+
+/* Truncate long words gracefully */
+.truncate {
+  overflow: hidden;
+  text-overflow: ellipsis;
+  white-space: nowrap;
+}
+
+/* --- Final Mobile-Only Styles --- */
+@media (max-width: 768px) {
+
+  /* 1. REMOVE MAIN CONTAINER */
+  .app-container {
+    padding: 0;
+  }
+
+  .translucent-container {
+    background: transparent;
+    backdrop-filter: none;
+    -webkit-backdrop-filter: none;
+    border: none;
+    border-radius: 0;
+    box-shadow: none;
+    min-height: 100vh;
+    width: 100%;
+  }
+
+  /* 2. FLOATING CENTERED PILL NAVIGATION BAR */
+  .w-72.bg-gradient-to-b.from-emerald-50\/80 {
+    position: fixed;
+    bottom: 16px;
+    left: 50%;
+    transform: translateX(-50%);
+    z-index: 1000;
+    display: flex;
+    flex-direction: row;
+    align-items: center;
+    justify-content: center;
+    width: auto !important;
+    max-width: 280px !important;
+    min-height: auto !important;
+    height: 64px;
+    top: auto;
+    right: auto;
+    background: rgba(255, 255, 255, 0.95);
+    backdrop-filter: blur(10px);
+    -webkit-backdrop-filter: blur(10px);
+    border: 1px solid rgba(0, 0, 0, 0.05);
+    border-radius: 9999px;
+    box-shadow: 0 4px 12px rgba(0, 0, 0, 0.1);
+    padding: 0 16px;
+  }
+
+  /* Hide the desktop sidebar header */
+  .w-72 .p-6.border-b {
+    display: none;
+  }
+
+  /* Container for main menu items */
+  .w-72 nav.flex-1 {
+    flex: 1;
+    height: 100%;
+    padding: 0;
+  }
+
+  /* NAV LIST → HORIZONTAL WITH EVEN SPACING */
+  .w-72 nav.flex-1 .space-y-2 {
+    display: flex !important;
+    flex-direction: row !important;
+    justify-content: space-between !important;
+    align-items: center !important;
+    height: 100%;
+    margin: 0;
+    gap: 8px !important;
+    --tw-space-y-reverse: 0;
+    width: 100% !important;
+  }
+
+  .w-72 nav.flex-1 .space-y-2> :not([hidden])~ :not([hidden]) {
+    margin-top: 0;
+  }
+
+  /* SETTINGS LINK */
+  .w-72 .p-4.border-t {
+    display: flex;
+    align-items: center;
+    border-top: none;
+    padding: 0;
+    margin: 0;
+  }
+
+  /* ALL ICON BUTTONS ARE PERFECT CIRCLES */
+  .w-72 nav.flex-1 .space-y-2>a,
+  .w-72 .p-4.border-t>a {
+    display: flex !important;
+    justify-content: center !important;
+    align-items: center !important;
+    flex: 0 0 48px !important;
+    width: 48px !important;
+    height: 48px !important;
+    min-width: 48px !important;
+    border-radius: 50% !important;
+    padding: 0 !important;
+    margin: 0 !important;
+    background: transparent !important;
+    box-shadow: none !important;
+    color: #374151 !important;
+    transition: all 0.2s ease-in-out;
+  }
+
+  /* PERFECT CENTERING OF SVG */
+  .w-72 nav.flex-1 .space-y-2>a svg,
+  .w-72 .p-4.border-t>a svg {
+    margin: 0 auto !important;
+    width: 22px !important;
+    height: 22px !important;
+    display: block !important;
+    flex-shrink: 0 !important;
+  }
+
+  /* Hide all text spans inside nav buttons */
+  .w-72 nav.flex-1 .space-y-2>a span:not(.ml-auto),
+  .w-72 .p-4.border-t>a span:not(.ml-auto) {
+    display: none !important;
+  }
+
+  /* ACTIVE ICON → GREEN CIRCLE */
+  .w-72 nav.flex-1 .space-y-2>a.active,
+  .w-72 .p-4.border-t>a.active {
+    background-color: #10b981 !important;
+    color: white !important;
+  }
+
+  /* Hide badge */
+  .w-72 nav.flex-1 .space-y-2>a .ml-auto {
+    display: none !important;
+  }
+
+  /* FLOATING ACTION BUTTON */
+  .mb-10 .flex.space-x-4 {
+    position: fixed;
+    bottom: 96px;
+    right: 16px;
+    z-index: 1000;
+  }
+
+  .mb-10 .flex.space-x-4 button {
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    width: 60px;
+    height: 60px;
+    padding: 0;
+    background-color: #10b981;
+    color: white;
+    border-radius: 50%;
+    box-shadow: 0 4px 12px rgba(0, 0, 0, 0.15);
+    font-size: 0;
+  }
+
+  .mb-10 .flex.space-x-4 button svg {
+    width: 28px;
+    height: 28px;
+    margin-right: 0;
+  }
+
+  /* MAIN CONTENT SPACING - Items scroll behind floating elements */
+  .main-content>div {
+    padding-bottom: 7rem !important;
+    /* Space for both FAB and nav bar */
+  }
+
+  /* PERFORMANCE FIXES */
+  .card-hover,
+  .glass-effect,
+  .glass-light,
+  .glass-medium,
+  .glass-heavy {
+    backdrop-filter: none;
+    -webkit-backdrop-filter: none;
+    background: #ffffff;
+    box-shadow: 0 4px 12px rgba(0, 0, 0, 0.05);
+  }
+
+  /* DASHBOARD UI TWEAKS */
+  .p-8 {
+    padding: 1rem;
+  }
+
+  .mb-10 .text-3xl {
+    font-size: 1.5rem;
+    line-height: 2rem;
+  }
+
+  .mb-10 .text-lg {
+    font-size: 0.9rem;
+  }
+
+  .p-6 {
+    padding: 1rem;
+  }
+
+  .p-3\.5 {
+    padding: 0.6rem;
+    border-radius: 0.75rem;
+  }
+
+  .text-2xl {
+    font-size: 1.5rem;
+  }
+
+  .h-\[calc\(100vh-24rem\)\] {
+    height: auto;
+    max-height: 400px;
+    overflow-y: auto;
+  }
+
+  .p-5 {
+    padding: 1rem;
+  }
+
+  .text-base {
+    font-size: 0.9rem;
+  }
+
+  .text-sm {
+    font-size: 0.8rem;
+  }
+
+  .gap-4 {
+    gap: 0.5rem;
+  }
+
+  .text-xs {
+    font-size: 11px;
+  }
+
+  .lg\:col-span-2 {
+    grid-column: span 1 / span 1 !important;
+  }
+}
